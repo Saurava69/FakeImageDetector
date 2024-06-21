@@ -6,13 +6,6 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-# Hide Streamlit's default icons and fork option
-hide_menu_style = """
-        <style>
-        #MainMenu {visibility: hidden;}
-        </style>
-        """
-st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 # Load the model
 model_path = 'resnet50_v3_model.pth'
