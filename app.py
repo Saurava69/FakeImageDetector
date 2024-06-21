@@ -6,6 +6,20 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
+# Hide Streamlit's default icons and fork option
+st.markdown(
+    """
+    <style>
+    .css-1jc7ptx, .e1ewe7hr3, .viewerBadge_container__1QSob,
+    .styles_viewerBadge__1yB5_, .viewerBadge_link__1S137,
+    .viewerBadge_text__1JaDK {
+        display: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Load the model
 model_path = 'resnet50_v3_model.pth'
 checkpoint = torch.load(model_path, map_location=torch.device('cpu'))
@@ -97,18 +111,18 @@ def classify_image(image_path):
     # Show the CAM on the image
     cam_image = show_cam_on_image(image, cam)
 
-    # Plotting the images
-    st.image(np.array(image), caption=f'Original Image - Confidence: {confidence_score.item():.3f}', use_column_width=True)
-    st.image(cam_image, caption='Grad-CAM', use_column_width=True)
-
-    # Return prediction label and confidence score
-    prediction_label = "Real Image" if predicted_class.item() == 0 else "AI-generated Image"
-    return prediction_label, confidence_score.item()
+    return image, cam_image, predicted_class.item(), confidence_score.item()
 
 st.title("Image Classification and Grad-CAM Visualization")
 
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-if uploaded_file is not None:
-    with st.spinner('Classifying...'):
-        prediction_label, confidence_score = classify_image(uploaded_file)
-        st.success(f'Prediction: {prediction_label} (Confidence: {confidence_score:.3f})')
+uploaded_files = st.file_uploader("Choose images...", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+if uploaded_files:
+    for uploaded_file in uploaded_files:
+        with st.spinner(f'Classifying {uploaded_file.name}...'):
+            image, cam_image, predicted_class, confidence_score = classify_image(uploaded_file)
+            prediction_label = "Real Image" if predicted_class == 0 else "AI-generated Image"
+
+            st.write(f'**Prediction for {uploaded_file.name}:** {prediction_label} (Confidence: {confidence_score:.3f})')
+            st.image(image, caption=f'Original Image - {uploaded_file.name}', use_column_width=True)
+            st.image(cam_image, caption='Grad-CAM', use_column_width=True)
+            st.write("---")
