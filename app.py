@@ -7,18 +7,12 @@ import cv2
 import matplotlib.pyplot as plt
 
 # Hide Streamlit's default icons and fork option
-st.markdown(
-    """
-    <style>
-    .css-1jc7ptx, .e1ewe7hr3, .viewerBadge_container__1QSob,
-    .styles_viewerBadge__1yB5_, .viewerBadge_link__1S137,.styles_stateContainer__CelYF ,
-    .viewerBadge_text__1JaDK {
-        display: none;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        </style>
+        """
+st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 # Load the model
 model_path = 'resnet50_v3_model.pth'
