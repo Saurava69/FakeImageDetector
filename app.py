@@ -6,6 +6,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
+
 # Load the model
 model_path = 'resnet50_v3_model.pth'
 checkpoint = torch.load(model_path, map_location=torch.device('cpu'))
@@ -101,20 +102,25 @@ def classify_image(image_path):
 
 st.title("Image Classification and Grad-CAM Visualization")
 
-# Initialize or load the results list
+# Initialize or load the results list and processed filenames set
 if 'results' not in st.session_state:
     st.session_state['results'] = []
+
+if 'processed_files' not in st.session_state:
+    st.session_state['processed_files'] = set()
 
 uploaded_files = st.file_uploader("Choose images...", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if uploaded_files:
     for uploaded_file in uploaded_files:
-        with st.spinner(f'Classifying {uploaded_file.name}...'):
-            image, cam_image, predicted_class, confidence_score = classify_image(uploaded_file)
-            prediction_label = "Real Image" if predicted_class == 0 else "AI-generated Image"
+        if uploaded_file.name not in st.session_state['processed_files']:
+            with st.spinner(f'Classifying {uploaded_file.name}...'):
+                image, cam_image, predicted_class, confidence_score = classify_image(uploaded_file)
+                prediction_label = "Real Image" if predicted_class == 0 else "AI-generated Image"
 
-            # Insert new result at the beginning of the list
-            st.session_state['results'].insert(0, (uploaded_file.name, image, cam_image, prediction_label, confidence_score))
+                # Insert new result at the beginning of the list
+                st.session_state['results'].insert(0, (uploaded_file.name, image, cam_image, prediction_label, confidence_score))
+                st.session_state['processed_files'].add(uploaded_file.name)
 
 # Display results in the desired order
 for idx, (file_name, image, cam_image, prediction_label, confidence_score) in enumerate(st.session_state['results']):
